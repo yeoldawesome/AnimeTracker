@@ -826,3 +826,5 @@ C:\Users\dnlon\Downloads\AnimeTracker\obj\Debug\net7.0\AnimeTracker.dll
 C:\Users\dnlon\Downloads\AnimeTracker\obj\Debug\net7.0\refint\AnimeTracker.dll
 C:\Users\dnlon\Downloads\AnimeTracker\obj\Debug\net7.0\AnimeTracker.pdb
 C:\Users\dnlon\Downloads\AnimeTracker\obj\Debug\net7.0\ref\AnimeTracker.dll
+C:\Users\dnlon\Downloads\AnimeTracker\bin\Debug\net7.0\docs\sample-data\weather.json
+C:\Users\dnlon\Downloads\AnimeTracker\bin\Debug\net7.0\docs\_framework\blazor.boot.json
