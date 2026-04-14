@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'docs/**'
 
 jobs:
   build-and-deploy:
@@ -15,8 +17,10 @@ jobs:
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
         with:
-          dotnet-version: '7.0.x'
+          dotnet-version: '8.0.x'
 
       - name: Restore dependencies
         run: dotnet restore
@@ -24,12 +28,20 @@ jobs:
       - name: Publish Blazor WebAssembly app
         run: dotnet publish -c Release
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./bin/Release/net7.0/publish/wwwroot
-          publish_branch: main
-          destination_dir: docs
-          user_name: github-actions
-          user_email: github-actions@github.com
+      - name: Copy publish output into docs folder
+        run: |
+          rm -rf docs
+          mkdir -p docs
+          cp -R bin/Release/net7.0/publish/wwwroot/. docs/
+
+      - name: Commit docs folder
+        run: |
+          git config user.name 'github-actions'
+          git config user.email 'github-actions@github.com'
+          git add docs
+          if git diff --cached --quiet; then
+            echo 'No changes to commit.'
+          else
+            git commit -m 'Publish site to docs [skip ci]'
+            git push origin main
+          fi
