@@ -1,7 +1,7 @@
 {
   "entryAssembly": "AnimeTracker",
   "resources": {
-    "hash": "sha256-MQJob4Tv/EyBYMgIqLQ2cPau8UnMVQXGYoF0g1+N+uc=",
+    "hash": "sha256-xqBnhkR1o1X2I0G/gKDhBnQVSXClEA+11t2XtVpDWqM=",
     "runtime": {
       "dotnet.js": "sha256-eaJTmow4t8eE7FZMZR5Ja41JMOefGCbIYDTdpclGsac=",
       "dotnet.timezones.blat": "sha256-gbATD5HDsHYtW8vdPYh9iSBY4O5CjvMeCSF5xXWF1xo=",
@@ -49,7 +49,7 @@
       "System.Text.Json.dll": "sha256-crEwZci3/3yhga9KmxJ1E9BuakDehMATTsVP8iqMWUc=",
       "System.dll": "sha256-X00CS76RYP+1bonecVV1Cn/0jOHeoVQUo1GS8UHpHpM=",
       "System.Private.CoreLib.dll": "sha256-dnqUy3AeQ5MMmQIWXzC/kiV9KlNNciKz4thAU1iQWNE=",
-      "AnimeTracker.dll": "sha256-u+59Qn4tSaeavLmkCF4vyzQAloB6JzfME1z3OH2pZVQ="
+      "AnimeTracker.dll": "sha256-wsL3TljFUaMtteytBjG3CqPtbhOlpgxXlfD+cqIG9J0="
     },
     "runtimeAssets": {
       "dotnet.wasm": {
