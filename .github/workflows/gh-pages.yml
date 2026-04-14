@@ -4,52 +4,31 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - 'docs/**'
-  workflow_dispatch:
-
-permissions:
-  contents: write
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          persist-credentials: true
-          fetch-depth: 0
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '7.0.x'
 
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Publish Blazor WebAssembly app
-        run: dotnet publish -c Release -f net7.0
+      - name: Build
+        run: dotnet publish -c Release -o release --nologo
 
-      - name: Copy published output to docs
+      - name: Change base-tag in index.html to ./
         run: |
-          mkdir -p docs
-          rm -rf docs/*
-          cp -R bin/Release/net7.0/publish/wwwroot/. docs/
-          touch docs/.nojekyll
+          sed -i 's|<base href="/"|<base href="./"|g' release/wwwroot/index.html
 
-      - name: Commit docs folder
-        run: |
-          git config user.name 'github-actions'
-          git config user.email 'github-actions@github.com'
-          git add docs
-          if git diff --cached --quiet; then
-            echo 'No changes to commit.'
-          else
-            git commit -m 'Publish site to docs [skip ci]'
-            git push origin main
-          fi
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./release/wwwroot
