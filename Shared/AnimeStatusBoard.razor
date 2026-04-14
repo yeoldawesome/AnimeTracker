@@ -1,0 +1,57 @@
+@using AnimeTracker.Data
+@inject AnimeDataService DataService
+
+<div class="status-board">
+    <div class="status-board-header">
+        <div>
+            <h2>@Title</h2>
+            <p>@Description</p>
+        </div>
+        <div class="status-board-meta">
+            <span>@Entries.Count entries</span>
+        </div>
+    </div>
+
+    @if (Entries.Count == 0)
+    {
+        <div class="empty-status-card">
+            <p>No titles found in this list yet.</p>
+            <NavLink class="btn btn-primary" href="add">Add your next anime</NavLink>
+        </div>
+    }
+    else
+    {
+        <div class="status-grid">
+            @foreach (var entry in Entries)
+            {
+                <AnimeCard Entry="entry" OnUpdated="Refresh" />
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public AnimeStatus Status { get; set; }
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Description { get; set; } = string.Empty;
+
+    private List<AnimeEntry> Entries { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await DataService.InitializeAsync();
+        RefreshEntries();
+    }
+
+    private void RefreshEntries()
+    {
+        Entries = DataService.GetByStatus(Status);
+    }
+
+    private Task Refresh()
+    {
+        RefreshEntries();
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+}

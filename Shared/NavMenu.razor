@@ -1,0 +1,43 @@
+﻿<div class="top-row nav-header">
+    <div>
+        <a class="navbar-brand" href="">AnimeTracker</a>
+        <p class="nav-subtitle">Your local anime journal</p>
+    </div>
+    <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">Home</NavLink>
+        </div>
+        <div class="nav-item">
+            <NavLink class="nav-link" href="watching">Watching</NavLink>
+        </div>
+        <div class="nav-item">
+            <NavLink class="nav-link" href="watch-later">Watch Later</NavLink>
+        </div>
+        <div class="nav-item">
+            <NavLink class="nav-link" href="finished">Finished</NavLink>
+        </div>
+        <div class="nav-item">
+            <NavLink class="nav-link" href="add">Add anime</NavLink>
+        </div>
+        <div class="nav-item">
+            <NavLink class="nav-link" href="storage">CSV Storage</NavLink>
+        </div>
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

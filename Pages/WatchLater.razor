@@ -1,0 +1,15 @@
+@page "/watch-later"
+@using AnimeTracker.Data
+
+<PageTitle>Watch Later</PageTitle>
+
+<div class="page-header">
+    <div>
+        <p class="eyebrow">Watch Later</p>
+        <h1>Saved for later</h1>
+        <p>Pick your next anime to start when you are ready.</p>
+    </div>
+    <NavLink class="btn btn-primary" href="add">Add anime</NavLink>
+</div>
+
+<AnimeStatusBoard Status="AnimeStatus.WatchLater" Title="Watch Later list" Description="Titles you want to come back to soon." />

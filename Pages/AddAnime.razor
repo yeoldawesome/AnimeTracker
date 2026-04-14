@@ -1,0 +1,111 @@
+@page "/add"
+@using AnimeTracker.Data
+@inject AnimeDataService DataService
+@inject NavigationManager Navigation
+
+<PageTitle>Add Anime</PageTitle>
+
+<div class="page-header">
+    <div>
+        <p class="eyebrow">New anime</p>
+        <h1>Add a new title</h1>
+        <p>Fill in the details and save your anime to the tracker.</p>
+    </div>
+    <NavLink class="btn btn-secondary" href="/">Back</NavLink>
+</div>
+
+<EditForm Model="NewAnime" OnValidSubmit="SaveAnime">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-grid">
+        <div class="form-card">
+            <label>Title</label>
+            <InputText class="form-control" @bind-Value="NewAnime.Title" />
+
+            <label>Description</label>
+            <InputTextArea class="form-control" @bind-Value="NewAnime.Description" Rows="5" />
+
+            <label>Found date</label>
+            <InputDate class="form-control" @bind-Value="NewAnime.FoundDate" />
+
+            <label>Start watching</label>
+            <InputDate class="form-control" @bind-Value="NewAnime.StartDate" />
+
+            <label>End watching</label>
+            <InputDate class="form-control" @bind-Value="NewAnime.EndDate" />
+
+            <label>Series link</label>
+            <InputText class="form-control" @bind-Value="NewAnime.Link" />
+
+            <label>Image URL</label>
+            <InputText class="form-control" @bind-Value="NewAnime.ImageUrl" />
+        </div>
+
+        <div class="form-card">
+            <label>Rating</label>
+            <InputNumber class="form-control" @bind-Value="NewAnime.Rating" Min="1" Max="5" />
+
+            <label>Status</label>
+            <InputSelect class="form-control" @bind-Value="NewAnime.Status">
+                <option value="AnimeStatus.WatchLater">Watch Later</option>
+                <option value="AnimeStatus.Watching">Watching</option>
+                <option value="AnimeStatus.Finished">Finished</option>
+            </InputSelect>
+
+            <label>Language</label>
+            <InputSelect class="form-control" @bind-Value="NewAnime.Language">
+                <option value="WatchLanguage.SubOnly">Sub Only</option>
+                <option value="WatchLanguage.DubAvailable">Dub Available</option>
+            </InputSelect>
+
+            <label>Seasons</label>
+            <InputNumber class="form-control" @bind-Value="NewAnime.Seasons" Min="1" />
+
+            <label>Episodes per season</label>
+            <InputNumber class="form-control" @bind-Value="NewAnime.EpisodesPerSeason" Min="1" />
+
+            <label>Episodes watched</label>
+            <InputNumber class="form-control" @bind-Value="NewAnime.EpisodesWatched" Min="0" Max="999" />
+
+            <label>Notes</label>
+            <InputTextArea class="form-control" @bind-Value="NewAnime.Notes" Rows="4" />
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save anime</button>
+        <button type="button" class="btn btn-secondary" @onclick="ResetForm">Reset</button>
+    </div>
+</EditForm>
+
+@code {
+    private AnimeEntry NewAnime { get; set; } = new AnimeEntry();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await DataService.InitializeAsync();
+    }
+
+    private async Task SaveAnime()
+    {
+        if (string.IsNullOrWhiteSpace(NewAnime.Title))
+        {
+            return;
+        }
+
+        if (NewAnime.EpisodesWatched > NewAnime.Seasons * NewAnime.EpisodesPerSeason)
+        {
+            NewAnime.EpisodesWatched = NewAnime.Seasons * NewAnime.EpisodesPerSeason;
+        }
+
+        await DataService.AddOrUpdateAsync(NewAnime);
+        NewAnime = new AnimeEntry();
+        Navigation.NavigateTo("/");
+    }
+
+    private void ResetForm()
+    {
+        NewAnime = new AnimeEntry();
+    }
+}

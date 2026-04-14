@@ -1,0 +1,131 @@
+@page "/anime/{AnimeId}"
+@using AnimeTracker.Data
+@inject AnimeDataService DataService
+@inject NavigationManager Navigation
+
+<PageTitle>Anime details</PageTitle>
+
+@if (Entry is null)
+{
+    <div class="empty-state">
+        <h2>Anime not found</h2>
+        <p>This title may have been removed or the link is invalid.</p>
+        <NavLink class="btn btn-primary" href="/">Back to home</NavLink>
+    </div>
+}
+else
+{
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">Details</p>
+            <h1>@Entry.Title</h1>
+            <p>Manage progress, move status, and keep your notes updated.</p>
+        </div>
+        <NavLink class="btn btn-secondary" href="/">Back</NavLink>
+    </div>
+
+    <div class="detail-grid">
+        <div class="detail-card">
+            <img src="@(string.IsNullOrWhiteSpace(Entry.ImageUrl) ? "https://images.unsplash.com/photo-1529484961088-8ca3cb593af1?auto=format&fit=crop&w=1200&q=80" : Entry.ImageUrl)" alt="@Entry.Title" />
+            <div class="detail-pill">@Entry.StatusLabel</div>
+            <div class="detail-pill detail-pill-secondary">@Entry.LanguageLabel</div>
+        </div>
+
+        <div class="detail-card detail-form-card">
+            <label>Description</label>
+            <p>@Entry.Description</p>
+
+            <div class="detail-row">
+                <div>
+                    <strong>Found date</strong>
+                    <p>@(Entry.FoundDate?.ToString("MMM d, yyyy") ?? "—")</p>
+                </div>
+                <div>
+                    <strong>Start date</strong>
+                    <p>@(Entry.StartDate?.ToString("MMM d, yyyy") ?? "—")</p>
+                </div>
+            </div>
+
+            <div class="detail-row">
+                <div>
+                    <strong>End date</strong>
+                    <p>@(Entry.EndDate?.ToString("MMM d, yyyy") ?? "—")</p>
+                </div>
+                <div>
+                    <strong>Rating</strong>
+                    <p>@Entry.Rating / 5</p>
+                </div>
+            </div>
+
+            <label>Link</label>
+            <p><a href="@Entry.Link" target="_blank" rel="noopener">Open anime page</a></p>
+
+            <label>Notes</label>
+            <p>@Entry.Notes</p>
+
+            <div class="episode-tracker">
+                <div class="tracker-label">
+                    <span>@Entry.ProgressLabel</span>
+                    <small>@Entry.TotalEpisodes total episodes</small>
+                </div>
+                <div class="tracker-actions">
+                    <button class="btn btn-secondary" @onclick="() => ChangeProgress(-1)">-</button>
+                    <button class="btn btn-secondary" @onclick="() => ChangeProgress(1)">+</button>
+                </div>
+            </div>
+
+            <div class="detail-actions">
+                <button class="btn btn-primary" @onclick="() => ChangeStatus(AnimeStatus.Watching)">Mark Watching</button>
+                <button class="btn btn-primary" @onclick="() => ChangeStatus(AnimeStatus.Finished)">Mark Finished</button>
+                <button class="btn btn-primary" @onclick="() => ChangeStatus(AnimeStatus.WatchLater)">Move to Watch Later</button>
+                <button class="btn btn-danger btn-outline" @onclick="DeleteEntry">Delete</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public string AnimeId { get; set; } = string.Empty;
+    private AnimeEntry? Entry { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await DataService.InitializeAsync();
+        Entry = DataService.GetById(AnimeId);
+    }
+
+    private async Task ChangeStatus(AnimeStatus status)
+    {
+        if (Entry is null)
+        {
+            return;
+        }
+
+        await DataService.MoveStatusAsync(Entry.Id, status);
+        Entry = DataService.GetById(Entry.Id);
+        StateHasChanged();
+    }
+
+    private async Task ChangeProgress(int delta)
+    {
+        if (Entry is null)
+        {
+            return;
+        }
+
+        await DataService.AdjustProgressAsync(Entry.Id, delta);
+        Entry = DataService.GetById(Entry.Id);
+        StateHasChanged();
+    }
+
+    private async Task DeleteEntry()
+    {
+        if (Entry is null)
+        {
+            return;
+        }
+
+        await DataService.RemoveAsync(Entry.Id);
+        Navigation.NavigateTo("/");
+    }
+}

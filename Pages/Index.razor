@@ -1,0 +1,68 @@
+﻿@page "/"
+@inject AnimeDataService DataService
+
+<PageTitle>AnimeTracker</PageTitle>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await DataService.InitializeAsync();
+    }
+}
+
+<div class="hero-panel">
+    <div>
+        <p class="eyebrow">Personal anime tracker</p>
+        <h1>Keep your anime library ready for phone or desktop.</h1>
+        <p class="hero-copy">Track titles in Watch Later, Watching, or Finished. Save progress, export to CSV, and manage your collection locally with a polished mobile-first interface.</p>
+        <div class="hero-actions">
+            <NavLink class="btn btn-primary" href="add">Add new anime</NavLink>
+            <NavLink class="btn btn-outline-light" href="watching">Open Watching</NavLink>
+            <NavLink class="btn btn-outline-light" href="watch-later">Watch Later</NavLink>
+        </div>
+    </div>
+    <div class="hero-visual">
+        <div class="hero-card">
+            <div class="hero-card-title">Your anime snapshot</div>
+            <div class="stat-grid">
+                <div>
+                    <span>@DataService.GetByStatus(AnimeStatus.Watching).Count</span>
+                    <small>Watching</small>
+                </div>
+                <div>
+                    <span>@DataService.GetByStatus(AnimeStatus.WatchLater).Count</span>
+                    <small>Watch Later</small>
+                </div>
+                <div>
+                    <span>@DataService.GetByStatus(AnimeStatus.Finished).Count</span>
+                    <small>Finished</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section-grid">
+    <div class="feature-card">
+        <h2>Organized screens</h2>
+        <p>Move titles across Watch Later, Watching, and Finished screens with just one tap.</p>
+    </div>
+    <div class="feature-card">
+        <h2>Episode tracking</h2>
+        <p>Store seasons, episodes per season, watched count, and progress percentage for each title.</p>
+    </div>
+    <div class="feature-card">
+        <h2>CSV backup</h2>
+        <p>Export your anime list to a file and import it again if you switch phones or want a local backup.</p>
+    </div>
+</div>
+
+<div class="home-quick-board">
+    <h2>Quick links</h2>
+    <div class="home-quick-buttons">
+        <NavLink class="btn btn-primary" href="watching">Watching</NavLink>
+        <NavLink class="btn btn-secondary" href="finished">Finished</NavLink>
+        <NavLink class="btn btn-secondary" href="watch-later">Watch Later</NavLink>
+        <NavLink class="btn btn-secondary" href="storage">CSV Storage</NavLink>
+    </div>
+</div>

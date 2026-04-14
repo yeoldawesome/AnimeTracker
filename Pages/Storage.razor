@@ -1,0 +1,57 @@
+@page "/storage"
+@using AnimeTracker.Data
+@inject AnimeDataService DataService
+
+<PageTitle>CSV Storage</PageTitle>
+
+<div class="page-header">
+    <div>
+        <p class="eyebrow">CSV backup</p>
+        <h1>Export and import your list</h1>
+        <p>Save a backup to your phone or upload an existing CSV file to restore your anime collection.</p>
+    </div>
+    <NavLink class="btn btn-secondary" href="/">Back</NavLink>
+</div>
+
+<div class="storage-panel">
+    <div class="storage-card">
+        <h2>Export CSV</h2>
+        <p>Download a CSV backup of your current anime data.</p>
+        <button class="btn btn-primary" @onclick="ExportCsv">Download backup</button>
+    </div>
+    <div class="storage-card">
+        <h2>Import CSV</h2>
+        <p>Choose a CSV file exported from AnimeTracker to restore your library.</p>
+        <InputFile OnChange="ImportCsv" accept=".csv" />
+        @if (!string.IsNullOrEmpty(ImportStatus))
+        {
+            <div class="import-status">@ImportStatus</div>
+        }
+    </div>
+</div>
+
+@code {
+    private string ImportStatus { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await DataService.InitializeAsync();
+    }
+
+    private async Task ExportCsv()
+    {
+        await DataService.ExportCsvAsync();
+    }
+
+    private async Task ImportCsv(InputFileChangeEventArgs args)
+    {
+        if (args.FileCount == 0)
+        {
+            return;
+        }
+
+        var file = args.File;
+        await DataService.ImportCsvAsync(file);
+        ImportStatus = $"Imported {file.Name} successfully.";
+    }
+}

@@ -1,0 +1,15 @@
+@page "/finished"
+@using AnimeTracker.Data
+
+<PageTitle>Finished</PageTitle>
+
+<div class="page-header">
+    <div>
+        <p class="eyebrow">Finished</p>
+        <h1>Completed anime</h1>
+        <p>Review what you've finished and keep notes on your favorites.</p>
+    </div>
+    <NavLink class="btn btn-primary" href="add">Add anime</NavLink>
+</div>
+
+<AnimeStatusBoard Status="AnimeStatus.Finished" Title="Finished list" Description="Titles you have completed and want to preserve." />

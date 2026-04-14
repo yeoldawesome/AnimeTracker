@@ -1,0 +1,15 @@
+@page "/watching"
+@using AnimeTracker.Data
+
+<PageTitle>Watching</PageTitle>
+
+<div class="page-header">
+    <div>
+        <p class="eyebrow">Watching</p>
+        <h1>Currently watching</h1>
+        <p>Update your episode progress and move titles as you finish them.</p>
+    </div>
+    <NavLink class="btn btn-primary" href="add">Add anime</NavLink>
+</div>
+
+<AnimeStatusBoard Status="AnimeStatus.Watching" Title="Watching now" Description="Track your active anime and mark progress instantly." />
