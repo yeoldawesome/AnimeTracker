@@ -20,83 +20,83 @@ else
     </div>
 
     <EditForm Model="Entry" OnValidSubmit="SaveEntry">
-        <div class="detail-grid edit-detail-grid">
-            <div class="detail-card">
-                <img src="@(string.IsNullOrWhiteSpace(Entry.ImageUrl) ? "https://images.unsplash.com/photo-1529484961088-8ca3cb593af1?auto=format&fit=crop&w=1200&q=80" : Entry.ImageUrl)" alt="@Entry.Title" />
-                <label>Image URL</label>
-                <InputText class="form-control" @bind-Value="Entry.ImageUrl" @onblur="SaveEntry" />
-                <div class="pill-row">
-                    <span class="detail-pill @Entry.Status.ToString().ToLower()">@Entry.StatusLabel</span>
-                    <span class="detail-pill detail-pill-secondary">@Entry.LanguageLabel</span>
+        <div class="detail-card detail-full-card">
+            <div class="detail-title-row">
+                <div class="title-edit">
+                    <InputText class="detail-title-input" @bind-Value="Entry.Title" @onblur="SaveEntry" />
                 </div>
-                <label>Status</label>
-                <InputSelect class="form-control" @bind-Value="Entry.Status" @onchange="SaveEntry">
-                    <option value="AnimeStatus.WatchLater">Watch Later</option>
-                    <option value="AnimeStatus.Watching">Watching</option>
-                    <option value="AnimeStatus.Finished">Finished</option>
-                </InputSelect>
-                <label>Language</label>
-                <InputSelect class="form-control" @bind-Value="Entry.Language" @onchange="SaveEntry">
-                    <option value="WatchLanguage.SubOnly">Sub Only</option>
-                    <option value="WatchLanguage.DubAvailable">Dub Available</option>
-                </InputSelect>
+                <div class="pill-actions">
+                    <InputSelect class="@($"pill-select status-pill {Entry.Status.ToString().ToLower()}")" @bind-Value="Entry.Status" @onchange="SaveEntry">
+                        <option value="@AnimeStatus.WatchLater">Watch Later</option>
+                        <option value="@AnimeStatus.Watching">Watching</option>
+                        <option value="@AnimeStatus.Finished">Finished</option>
+                    </InputSelect>
+                    <InputSelect class="@($"pill-select language-pill {(Entry.Language == WatchLanguage.DubAvailable ? "dub" : "sub")}")" @bind-Value="Entry.Language" @onchange="SaveEntry">
+                        <option value="@WatchLanguage.SubOnly">SUB</option>
+                        <option value="@WatchLanguage.DubAvailable">DUB</option>
+                    </InputSelect>
+                </div>
             </div>
 
-            <div class="detail-card detail-form-card">
-                <label>Title</label>
-                <InputText class="form-control" @bind-Value="Entry.Title" @onblur="SaveEntry" />
+            <label>Description</label>
+            <InputTextArea class="form-control" @bind-Value="Entry.Description" Rows="4" @onblur="SaveEntry" />
 
-                <label>Description</label>
-                <InputTextArea class="form-control" @bind-Value="Entry.Description" Rows="5" @onblur="SaveEntry" />
+            <label>Genre</label>
+            <InputText class="form-control" @bind-Value="Entry.Genre" @onblur="SaveEntry" />
 
-                <label>Genre</label>
-                <InputText class="form-control" @bind-Value="Entry.Genre" @onblur="SaveEntry" />
+            <label>Notes</label>
+            <InputTextArea class="form-control" @bind-Value="Entry.Notes" Rows="3" @onblur="SaveEntry" />
 
-                <div class="detail-row">
-                    <div>
-                        <label>Found date</label>
-                        <InputDate class="form-control" @bind-Value="Entry.FoundDate" @onblur="SaveEntry" />
-                    </div>
-                    <div>
-                        <label>Start date</label>
-                        <InputDate class="form-control" @bind-Value="Entry.StartDate" @onblur="SaveEntry" />
-                    </div>
+            <div class="detail-row">
+                <div>
+                    <label>Rating</label>
+                    <StarRating Value="Entry.Rating" ValueChanged="OnRatingChanged" />
                 </div>
-
-                <div class="detail-row">
-                    <div>
-                        <label>End date</label>
-                        <InputDate class="form-control" @bind-Value="Entry.EndDate" @onblur="SaveEntry" />
-                    </div>
-                    <div>
-                        <label>Rating</label>
-                        <StarRating Value="Entry.Rating" ValueChanged="OnRatingChanged" />
-                    </div>
+                <div>
+                    <label>Found date</label>
+                    <InputDate class="form-control" @bind-Value="Entry.FoundDate" @onblur="SaveEntry" />
                 </div>
+            </div>
 
-                <label>Link</label>
-                <InputText class="form-control" @bind-Value="Entry.Link" @onblur="SaveEntry" />
-
-                <div class="detail-row">
-                    <div>
-                        <label>Seasons</label>
-                        <InputNumber class="form-control" @bind-Value="Entry.Seasons" @onchange="SaveEntry" Min="1" />
-                    </div>
-                    <div>
-                        <label>Episodes / season</label>
-                        <InputNumber class="form-control" @bind-Value="Entry.EpisodesPerSeason" @onchange="SaveEntry" Min="1" />
-                    </div>
+            <div class="detail-row">
+                <div>
+                    <label>Start date</label>
+                    <InputDate class="form-control" @bind-Value="Entry.StartDate" @onblur="SaveEntry" />
                 </div>
-
-                <label>Episodes watched</label>
-                <InputNumber class="form-control" @bind-Value="Entry.EpisodesWatched" @onchange="SaveEntry" Min="0" />
-
-                <label>Notes</label>
-                <InputTextArea class="form-control" @bind-Value="Entry.Notes" Rows="4" @onblur="SaveEntry" />
-
-                <div class="detail-actions detail-actions-single">
-                    <button type="button" class="btn btn-danger btn-outline" @onclick="DeleteEntry">Delete</button>
+                <div>
+                    <label>End date</label>
+                    <InputDate class="form-control" @bind-Value="Entry.EndDate" @onblur="SaveEntry" />
                 </div>
+            </div>
+
+            <label>Link</label>
+            <InputText class="form-control" @bind-Value="Entry.Link" @onblur="SaveEntry" />
+
+            <div class="detail-row">
+                <div>
+                    <label>Seasons</label>
+                    <InputNumber class="form-control" @bind-Value="Entry.Seasons" @onchange="SaveEntry" Min="1" />
+                </div>
+                <div>
+                    <label>Episodes / season</label>
+                    <InputNumber class="form-control" @bind-Value="Entry.EpisodesPerSeason" @onchange="SaveEntry" Min="1" />
+                </div>
+                <div>
+                    <label>Episodes watched</label>
+                    <InputNumber class="form-control" @bind-Value="Entry.EpisodesWatched" @onchange="SaveEntry" Min="0" />
+                </div>
+            </div>
+
+            <label>Image URL</label>
+            <InputText class="form-control" @bind-Value="Entry.ImageUrl" @onblur="SaveEntry" />
+
+            <label>Image preview</label>
+            <div class="image-preview">
+                <img src="@(string.IsNullOrWhiteSpace(Entry.ImageUrl) ? "https://images.unsplash.com/photo-1529484961088-8ca3cb593af1?auto=format&fit=crop&w=1200&q=80" : Entry.ImageUrl)" alt="@Entry.Title" />
+            </div>
+
+            <div class="detail-actions detail-actions-single">
+                <button type="button" class="btn btn-danger btn-outline" @onclick="DeleteEntry">Delete</button>
             </div>
         </div>
     </EditForm>
