@@ -1,7 +1,16 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+
+@code {
+    private bool ShowTopTabs => !Navigation.Uri.Contains("/anime/") && !Navigation.Uri.Equals(Navigation.BaseUri, StringComparison.OrdinalIgnoreCase);
+}
 
 <div class="page">
     <main>
+        @if (ShowTopTabs)
+        {
+            <TopTabs />
+        }
         <article class="content">
             @Body
         </article>

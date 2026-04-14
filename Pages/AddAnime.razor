@@ -114,6 +114,16 @@
             NewAnime.EpisodesWatched = NewAnime.Seasons * NewAnime.EpisodesPerSeason;
         }
 
+        if (NewAnime.Status == AnimeStatus.Watching && NewAnime.StartDate == null)
+        {
+            NewAnime.StartDate = DateTime.Today;
+        }
+
+        if (NewAnime.Status == AnimeStatus.Finished && NewAnime.EndDate == null)
+        {
+            NewAnime.EndDate = DateTime.Today;
+        }
+
         await DataService.AddOrUpdateAsync(NewAnime);
         NewAnime = new AnimeEntry();
         Navigation.NavigateTo("/");

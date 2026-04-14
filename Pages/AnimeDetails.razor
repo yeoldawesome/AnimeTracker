@@ -26,7 +26,7 @@ else
                     <InputText class="detail-title-input" @bind-Value="Entry.Title" @onblur="SaveEntry" />
                 </div>
                 <div class="pill-actions">
-                    <InputSelect class="@($"pill-select status-pill {Entry.Status.ToString().ToLower()}")" @bind-Value="Entry.Status" @onchange="SaveEntry">
+                    <InputSelect class="@($"pill-select status-pill {Entry.Status.ToString().ToLower()}")" @bind-Value="Entry.Status" @onchange="OnStatusChanged">
                         <option value="@AnimeStatus.WatchLater">Watch Later</option>
                         <option value="@AnimeStatus.Watching">Watching</option>
                         <option value="@AnimeStatus.Finished">Finished</option>
@@ -140,11 +140,13 @@ else
     {
         await SaveEntry();
 
-        var target = "/";
-        if (!string.IsNullOrWhiteSpace(PreviousTab))
+        var target = Entry?.Status switch
         {
-            target = $"/?tab={Uri.EscapeDataString(PreviousTab)}";
-        }
+            AnimeStatus.WatchLater => "/watch-later",
+            AnimeStatus.Watching => "/watching",
+            AnimeStatus.Finished => "/finished",
+            _ => "/"
+        };
 
         Navigation.NavigateTo(target);
     }
@@ -161,7 +163,36 @@ else
             Entry.EpisodesWatched = Entry.TotalEpisodes;
         }
 
+        ApplyStatusDates(Entry);
         await DataService.AddOrUpdateAsync(Entry);
+    }
+
+    private static void ApplyStatusDates(AnimeEntry entry)
+    {
+        if ((entry.Status == AnimeStatus.Watching || entry.Status == AnimeStatus.Finished) && entry.StartDate == null)
+        {
+            entry.StartDate = DateTime.Today;
+        }
+
+        if (entry.Status == AnimeStatus.Finished && entry.EndDate == null)
+        {
+            entry.EndDate = DateTime.Today;
+        }
+    }
+
+    private async Task OnStatusChanged(ChangeEventArgs args)
+    {
+        if (Entry is null)
+        {
+            return;
+        }
+
+        if (args?.Value is string value && Enum.TryParse<AnimeStatus>(value, out var status))
+        {
+            Entry.Status = status;
+            ApplyStatusDates(Entry);
+            await SaveEntry();
+        }
     }
 
     private async Task OnRatingChanged(double value)

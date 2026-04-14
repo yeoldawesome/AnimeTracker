@@ -25,5 +25,29 @@ window.animeTracker = {
             console.warn('Local storage unavailable.', error);
             return null;
         }
+    },
+
+    capturePointer: function (element, pointerId) {
+        if (!element || !element.setPointerCapture) {
+            return;
+        }
+
+        try {
+            element.setPointerCapture(pointerId);
+        } catch (error) {
+            console.warn('Pointer capture unavailable.', error);
+        }
+    },
+
+    releasePointer: function (element, pointerId) {
+        if (!element || !element.releasePointerCapture) {
+            return;
+        }
+
+        try {
+            element.releasePointerCapture(pointerId);
+        } catch (error) {
+            console.warn('Pointer release unavailable.', error);
+        }
     }
 };
