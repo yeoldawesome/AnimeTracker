@@ -3,7 +3,16 @@
 @inject NavigationManager Navigation
 @inject AnimeDataService DataService
 
-<div class="anime-card compact-card clickable-card" role="button" tabindex="0" @onclick="ViewDetails" @onkeydown="HandleKey">
+<div class="anime-card compact-card clickable-card @(SwipeStateClass)" role="button" tabindex="0"
+     @onclick="ViewDetails"
+     @onkeydown="HandleKey"
+     @onpointerdown="StartSwipe"
+     @onpointermove="UpdateSwipe"
+     @onpointerup="FinishSwipe"
+     @onpointercancel="CancelSwipe"
+     @onpointerleave="CancelSwipe"
+     style="@GetCardStyle()">
+    <div class="swipe-overlay">@SwipeText</div>
     <img class="anime-card-thumb" src="@(string.IsNullOrWhiteSpace(Entry.ImageUrl) ? "https://images.unsplash.com/photo-1529484961088-8ca3cb593af1?auto=format&fit=crop&w=1200&q=80" : Entry.ImageUrl)" alt="@Entry.Title" />
 
     <div class="anime-card-content">
@@ -36,11 +45,177 @@
 @code {
     [Parameter] public AnimeEntry Entry { get; set; } = default!;
     [Parameter] public string FromTab { get; set; } = string.Empty;
+    [Parameter] public EventCallback<AnimeEntry> OnEntryUpdated { get; set; }
 
-    private bool Expanded { get; set; }
+    private double dragStartX;
+    private double dragOffset;
+    private bool isPointerDown;
+    private bool hasDragged;
+    private bool ignoreClick;
+    private bool isSwipedAway;
+    private string swipeDirection = string.Empty;
+
+    private string SwipeStateClass
+        => isSwipedAway ? "swipe-away"
+            : hasDragged ? (dragOffset > 0 ? "swipe-right" : "swipe-left")
+            : string.Empty;
+
+    private string SwipeText
+    {
+        get
+        {
+            if (!hasDragged)
+            {
+                return string.Empty;
+            }
+
+            if (FromTab == "Watch Later")
+            {
+                return dragOffset > 0 ? "Move to Watching →" : "Slide right to move";
+            }
+
+            if (FromTab == "Watching")
+            {
+                return dragOffset > 0 ? "Move to Finished →" : "← Move to Watch Later";
+            }
+
+            return string.Empty;
+        }
+    }
+
+    private string GetCardStyle()
+    {
+        if (isSwipedAway)
+        {
+            var offset = dragOffset > 0 ? 420 : -420;
+            return $"transform: translateX({offset}px); opacity: 0; transition: transform 0.25s ease, opacity 0.25s ease;";
+        }
+
+        if (hasDragged)
+        {
+            return $"transform: translateX({dragOffset}px);";
+        }
+
+        return string.Empty;
+    }
+
+    private void StartSwipe(PointerEventArgs args)
+    {
+        isPointerDown = true;
+        dragStartX = args.ClientX;
+        dragOffset = 0;
+        hasDragged = false;
+        ignoreClick = false;
+        swipeDirection = string.Empty;
+    }
+
+    private void UpdateSwipe(PointerEventArgs args)
+    {
+        if (!isPointerDown || isSwipedAway)
+        {
+            return;
+        }
+
+        dragOffset = args.ClientX - dragStartX;
+        if (Math.Abs(dragOffset) > 10)
+        {
+            hasDragged = true;
+            swipeDirection = dragOffset > 0 ? "right" : "left";
+        }
+    }
+
+    private async Task FinishSwipe(PointerEventArgs args)
+    {
+        if (!isPointerDown || isSwipedAway)
+        {
+            return;
+        }
+
+        isPointerDown = false;
+
+        if (Math.Abs(dragOffset) >= 80 && TryApplySwipeAction())
+        {
+            ignoreClick = true;
+            isSwipedAway = true;
+            StateHasChanged();
+            await Task.Delay(240);
+            await DataService.AddOrUpdateAsync(Entry);
+            await OnEntryUpdated.InvokeAsync(Entry);
+            return;
+        }
+
+        ResetSwipe();
+    }
+
+    private void CancelSwipe(PointerEventArgs args)
+    {
+        if (!isPointerDown || isSwipedAway)
+        {
+            return;
+        }
+
+        isPointerDown = false;
+        if (hasDragged)
+        {
+            ignoreClick = true;
+        }
+
+        ResetSwipe();
+    }
+
+    private void ResetSwipe()
+    {
+        dragOffset = 0;
+        hasDragged = false;
+        swipeDirection = string.Empty;
+    }
+
+    private bool TryApplySwipeAction()
+    {
+        if (FromTab == "Watch Later" && swipeDirection == "right")
+        {
+            Entry.Status = AnimeStatus.Watching;
+            if (Entry.StartDate == null)
+            {
+                Entry.StartDate = DateTime.Today;
+            }
+
+            return true;
+        }
+
+        if (FromTab == "Watching")
+        {
+            if (swipeDirection == "right")
+            {
+                Entry.Status = AnimeStatus.Finished;
+                if (Entry.EndDate == null)
+                {
+                    Entry.EndDate = DateTime.Today;
+                }
+
+                return true;
+            }
+
+            if (swipeDirection == "left")
+            {
+                Entry.Status = AnimeStatus.WatchLater;
+                Entry.EndDate = null;
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     private void ViewDetails()
     {
+        if (ignoreClick || hasDragged)
+        {
+            ignoreClick = false;
+            hasDragged = false;
+            return;
+        }
+
         var target = $"/anime/{Entry.Id}";
         if (!string.IsNullOrWhiteSpace(FromTab))
         {
@@ -48,11 +223,6 @@
         }
 
         Navigation.NavigateTo(target);
-    }
-
-    private void ToggleDescription()
-    {
-        Expanded = !Expanded;
     }
 
     private async Task HandleKey(KeyboardEventArgs args)

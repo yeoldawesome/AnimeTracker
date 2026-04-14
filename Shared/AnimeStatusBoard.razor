@@ -27,7 +27,7 @@
         <div class="status-grid">
             @foreach (var entry in Entries)
             {
-                <AnimeCard Entry="entry" FromTab="FromTab" />
+                <AnimeCard Entry="entry" FromTab="FromTab" OnEntryUpdated="HandleEntryUpdated" />
             }
         </div>
     }
@@ -46,6 +46,12 @@
     {
         await DataService.InitializeAsync();
         RefreshEntries();
+    }
+
+    private async Task HandleEntryUpdated(AnimeEntry entry)
+    {
+        RefreshEntries();
+        await InvokeAsync(StateHasChanged);
     }
 
     private void RefreshEntries()

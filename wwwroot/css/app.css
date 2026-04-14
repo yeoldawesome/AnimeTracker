@@ -423,11 +423,47 @@ nav {
 }
 
 .anime-card {
+    position: relative;
     overflow: hidden;
     border: 1px solid rgba(255, 159, 64, 0.14);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     border-radius: 20px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    touch-action: pan-y;
+}
+
+.swipe-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 1.2rem;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0;
+    pointer-events: none;
+    white-space: nowrap;
+    transition: opacity 0.18s ease, background 0.18s ease;
+}
+
+.anime-card.swipe-right .swipe-overlay {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.18), rgba(16, 185, 129, 0.10));
+    opacity: 1;
+}
+
+.anime-card.swipe-left .swipe-overlay {
+    background: linear-gradient(135deg, rgba(251, 113, 133, 0.18), rgba(248, 113, 113, 0.10));
+    opacity: 1;
+}
+
+.anime-card .anime-card-content,
+.anime-card img {
+    position: relative;
+    z-index: 1;
 }
 
 .clickable-card:hover {
