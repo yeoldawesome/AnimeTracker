@@ -3,11 +3,9 @@
     @for (var i = 1; i <= 5; i++)
     {
         var fill = GetStarFill(i);
-        <div class="star-cell">
-            <button type="button" class="star-half left" @onclick="() => SetRating((i * 2) - 1)" aria-label="Half star"></button>
-            <button type="button" class="star-half right" @onclick="() => SetRating(i * 2)" aria-label="Full star"></button>
+        <button type="button" class="star-button" @onclick="() => SetRating(i)" aria-label="@($"{i} star{(i == 1 ? string.Empty : "s")}")">
             <span class="star-shape" style="--fill:@fill%">★</span>
-        </div>
+        </button>
     }
 </div>
 
@@ -16,15 +14,23 @@
     [Parameter] public EventCallback<double> ValueChanged { get; set; }
     [Parameter] public string Label { get; set; } = "Rating";
 
-    private double GetStarFill(int star)
+    private int GetStarFill(int star)
     {
-        var value = Value - (star - 1) * 2;
-        return Math.Clamp(value * 50, 0, 100);
+        if (Value >= star)
+        {
+            return 100;
+        }
+
+        if (Value <= star - 1)
+        {
+            return 0;
+        }
+
+        return (int)Math.Round((Value - (star - 1)) * 100);
     }
 
-    private Task SetRating(int halfStars)
+    private Task SetRating(int stars)
     {
-        var newValue = halfStars / 2.0;
-        return ValueChanged.InvokeAsync(newValue);
+        return ValueChanged.InvokeAsync(stars);
     }
 }

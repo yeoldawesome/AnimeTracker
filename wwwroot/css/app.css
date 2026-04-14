@@ -656,33 +656,26 @@ nav {
 }
 
 .star-rating {
-    display: inline-grid;
-    grid-template-columns: repeat(5, 32px);
+    display: inline-flex;
     gap: 0.35rem;
 }
 
-.star-cell {
-    position: relative;
+.star-button {
     width: 32px;
     height: 32px;
-}
-
-.star-half {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 50%;
     border: none;
     background: transparent;
+    padding: 0;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.18);
 }
 
-.star-half.left {
-    left: 0;
-}
-
-.star-half.right {
-    right: 0;
+.star-button:hover .star-shape,
+.star-button:focus-visible .star-shape {
+    color: #ffe28b;
 }
 
 .star-shape {

@@ -198,13 +198,13 @@
       "mscorlib.dll": "sha256-t1RT9mknsQ54H+sVa1vtMhjv3D8ZjiAGoLzHvuIObPw=",
       "netstandard.dll": "sha256-5SHKPh1PcuJjq4lIo7ymdIyhb9d3++oMAjr46auhUSc=",
       "System.Private.CoreLib.dll": "sha256-eH+XIsCUG5oZ0k8AIzNtRLTCLiV\/8Zv0RFCPMsIkdYY=",
-      "AnimeTracker.dll": "sha256-zhVWpQraYorFkgMSnXI24s4R+hYEmm3AYXtiYHF6AnA="
+      "AnimeTracker.dll": "sha256-DmGni41jcsoKTTWzCc\/z1APjfvOASKRgOgK7OXLH8cs="
     },
     "extensions": null,
     "lazyAssembly": null,
     "libraryInitializers": null,
     "pdb": {
-      "AnimeTracker.pdb": "sha256-J\/VxApp4znHie42\/\/T\/udyc4KvD5hyX17e3xdWVASLg="
+      "AnimeTracker.pdb": "sha256-zB8Xk3JDPlTxsy7n2QjOl3rn3dBNzA3lHU0u+2MMZiA="
     },
     "runtime": {
       "dotnet.7.0.9.0t2m2jstz2.js": "sha256-dUIY5Mz0ozZWqtTfBb7ArJKbdh5IIp8BXeq6UjK4u\/c=",
