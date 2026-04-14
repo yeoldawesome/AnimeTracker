@@ -35,11 +35,16 @@ jobs:
       - name: Publish Blazor WebAssembly app
         run: dotnet publish -c Release
 
+      - name: Add .nojekyll for GitHub Pages
+        run: |
+          touch bin/Release/net7.0/publish/wwwroot/.nojekyll
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./bin/Release/net7.0/publish/wwwroot
           publish_branch: gh-pages
+          clean: true
           user_name: github-actions
           user_email: github-actions@github.com
