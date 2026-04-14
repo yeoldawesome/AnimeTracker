@@ -38,13 +38,17 @@
             <label>Series link</label>
             <InputText class="form-control" @bind-Value="NewAnime.Link" />
 
+            <label>Genre</label>
+            <InputText class="form-control" @bind-Value="NewAnime.Genre" />
+
             <label>Image URL</label>
             <InputText class="form-control" @bind-Value="NewAnime.ImageUrl" />
         </div>
 
         <div class="form-card">
             <label>Rating</label>
-            <InputNumber class="form-control" @bind-Value="NewAnime.Rating" Min="1" Max="5" />
+            <StarRating Value="NewAnime.Rating" ValueChanged="OnRatingChanged" />
+            <div class="rating-note">Tap stars for half increments</div>
 
             <label>Status</label>
             <InputSelect class="form-control" @bind-Value="NewAnime.Status">
@@ -87,11 +91,22 @@
         await DataService.InitializeAsync();
     }
 
+    private Task OnRatingChanged(double value)
+    {
+        NewAnime.Rating = value;
+        return Task.CompletedTask;
+    }
+
     private async Task SaveAnime()
     {
         if (string.IsNullOrWhiteSpace(NewAnime.Title))
         {
             return;
+        }
+
+        if (NewAnime.FoundDate == null)
+        {
+            NewAnime.FoundDate = DateTime.Today;
         }
 
         if (NewAnime.EpisodesWatched > NewAnime.Seasons * NewAnime.EpisodesPerSeason)

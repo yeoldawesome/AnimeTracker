@@ -15,107 +15,164 @@
 }
 else
 {
-    <div class="page-header">
-        <div>
-            <p class="eyebrow">Details</p>
-            <h1>@Entry.Title</h1>
-            <p>Manage progress, move status, and keep your notes updated.</p>
-        </div>
-        <NavLink class="btn btn-secondary" href="/">Back</NavLink>
+    <div class="page-header detail-header">
+        <button type="button" class="btn btn-secondary" @onclick="Back">Back</button>
     </div>
 
-    <div class="detail-grid">
-        <div class="detail-card">
-            <img src="@(string.IsNullOrWhiteSpace(Entry.ImageUrl) ? "https://images.unsplash.com/photo-1529484961088-8ca3cb593af1?auto=format&fit=crop&w=1200&q=80" : Entry.ImageUrl)" alt="@Entry.Title" />
-            <div class="detail-pill">@Entry.StatusLabel</div>
-            <div class="detail-pill detail-pill-secondary">@Entry.LanguageLabel</div>
+    <EditForm Model="Entry" OnValidSubmit="SaveEntry">
+        <div class="detail-grid edit-detail-grid">
+            <div class="detail-card">
+                <img src="@(string.IsNullOrWhiteSpace(Entry.ImageUrl) ? "https://images.unsplash.com/photo-1529484961088-8ca3cb593af1?auto=format&fit=crop&w=1200&q=80" : Entry.ImageUrl)" alt="@Entry.Title" />
+                <label>Image URL</label>
+                <InputText class="form-control" @bind-Value="Entry.ImageUrl" @onblur="SaveEntry" />
+                <div class="pill-row">
+                    <span class="detail-pill @Entry.Status.ToString().ToLower()">@Entry.StatusLabel</span>
+                    <span class="detail-pill detail-pill-secondary">@Entry.LanguageLabel</span>
+                </div>
+                <label>Status</label>
+                <InputSelect class="form-control" @bind-Value="Entry.Status" @onchange="SaveEntry">
+                    <option value="AnimeStatus.WatchLater">Watch Later</option>
+                    <option value="AnimeStatus.Watching">Watching</option>
+                    <option value="AnimeStatus.Finished">Finished</option>
+                </InputSelect>
+                <label>Language</label>
+                <InputSelect class="form-control" @bind-Value="Entry.Language" @onchange="SaveEntry">
+                    <option value="WatchLanguage.SubOnly">Sub Only</option>
+                    <option value="WatchLanguage.DubAvailable">Dub Available</option>
+                </InputSelect>
+            </div>
+
+            <div class="detail-card detail-form-card">
+                <label>Title</label>
+                <InputText class="form-control" @bind-Value="Entry.Title" @onblur="SaveEntry" />
+
+                <label>Description</label>
+                <InputTextArea class="form-control" @bind-Value="Entry.Description" Rows="5" @onblur="SaveEntry" />
+
+                <label>Genre</label>
+                <InputText class="form-control" @bind-Value="Entry.Genre" @onblur="SaveEntry" />
+
+                <div class="detail-row">
+                    <div>
+                        <label>Found date</label>
+                        <InputDate class="form-control" @bind-Value="Entry.FoundDate" @onblur="SaveEntry" />
+                    </div>
+                    <div>
+                        <label>Start date</label>
+                        <InputDate class="form-control" @bind-Value="Entry.StartDate" @onblur="SaveEntry" />
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div>
+                        <label>End date</label>
+                        <InputDate class="form-control" @bind-Value="Entry.EndDate" @onblur="SaveEntry" />
+                    </div>
+                    <div>
+                        <label>Rating</label>
+                        <StarRating Value="Entry.Rating" ValueChanged="OnRatingChanged" />
+                    </div>
+                </div>
+
+                <label>Link</label>
+                <InputText class="form-control" @bind-Value="Entry.Link" @onblur="SaveEntry" />
+
+                <div class="detail-row">
+                    <div>
+                        <label>Seasons</label>
+                        <InputNumber class="form-control" @bind-Value="Entry.Seasons" @onchange="SaveEntry" Min="1" />
+                    </div>
+                    <div>
+                        <label>Episodes / season</label>
+                        <InputNumber class="form-control" @bind-Value="Entry.EpisodesPerSeason" @onchange="SaveEntry" Min="1" />
+                    </div>
+                </div>
+
+                <label>Episodes watched</label>
+                <InputNumber class="form-control" @bind-Value="Entry.EpisodesWatched" @onchange="SaveEntry" Min="0" />
+
+                <label>Notes</label>
+                <InputTextArea class="form-control" @bind-Value="Entry.Notes" Rows="4" @onblur="SaveEntry" />
+
+                <div class="detail-actions detail-actions-single">
+                    <button type="button" class="btn btn-danger btn-outline" @onclick="DeleteEntry">Delete</button>
+                </div>
+            </div>
         </div>
-
-        <div class="detail-card detail-form-card">
-            <label>Description</label>
-            <p>@Entry.Description</p>
-
-            <div class="detail-row">
-                <div>
-                    <strong>Found date</strong>
-                    <p>@(Entry.FoundDate?.ToString("MMM d, yyyy") ?? "—")</p>
-                </div>
-                <div>
-                    <strong>Start date</strong>
-                    <p>@(Entry.StartDate?.ToString("MMM d, yyyy") ?? "—")</p>
-                </div>
-            </div>
-
-            <div class="detail-row">
-                <div>
-                    <strong>End date</strong>
-                    <p>@(Entry.EndDate?.ToString("MMM d, yyyy") ?? "—")</p>
-                </div>
-                <div>
-                    <strong>Rating</strong>
-                    <p>@Entry.Rating / 5</p>
-                </div>
-            </div>
-
-            <label>Link</label>
-            <p><a href="@Entry.Link" target="_blank" rel="noopener">Open anime page</a></p>
-
-            <label>Notes</label>
-            <p>@Entry.Notes</p>
-
-            <div class="episode-tracker">
-                <div class="tracker-label">
-                    <span>@Entry.ProgressLabel</span>
-                    <small>@Entry.TotalEpisodes total episodes</small>
-                </div>
-                <div class="tracker-actions">
-                    <button class="btn btn-secondary" @onclick="() => ChangeProgress(-1)">-</button>
-                    <button class="btn btn-secondary" @onclick="() => ChangeProgress(1)">+</button>
-                </div>
-            </div>
-
-            <div class="detail-actions">
-                <button class="btn btn-primary" @onclick="() => ChangeStatus(AnimeStatus.Watching)">Mark Watching</button>
-                <button class="btn btn-primary" @onclick="() => ChangeStatus(AnimeStatus.Finished)">Mark Finished</button>
-                <button class="btn btn-primary" @onclick="() => ChangeStatus(AnimeStatus.WatchLater)">Move to Watch Later</button>
-                <button class="btn btn-danger btn-outline" @onclick="DeleteEntry">Delete</button>
-            </div>
-        </div>
-    </div>
+    </EditForm>
 }
 
 @code {
     [Parameter] public string AnimeId { get; set; } = string.Empty;
     private AnimeEntry? Entry { get; set; }
+    private string PreviousTab { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         await DataService.InitializeAsync();
         Entry = DataService.GetById(AnimeId);
+        PreviousTab = GetPreviousTab();
     }
 
-    private async Task ChangeStatus(AnimeStatus status)
+    private string GetPreviousTab()
+    {
+        var uri = new Uri(Navigation.Uri);
+        var query = uri.Query?.TrimStart('?');
+        if (string.IsNullOrEmpty(query))
+        {
+            return string.Empty;
+        }
+
+        var parts = query.Split('&', StringSplitOptions.RemoveEmptyEntries);
+        foreach (var part in parts)
+        {
+            var pair = part.Split('=', 2);
+            if (pair.Length == 2 && pair[0] == "from")
+            {
+                return Uri.UnescapeDataString(pair[1].Replace('+', ' '));
+            }
+        }
+
+        return string.Empty;
+    }
+
+    private async Task Back()
+    {
+        await SaveEntry();
+
+        var target = "/";
+        if (!string.IsNullOrWhiteSpace(PreviousTab))
+        {
+            target = $"/?tab={Uri.EscapeDataString(PreviousTab)}";
+        }
+
+        Navigation.NavigateTo(target);
+    }
+
+    private async Task SaveEntry()
     {
         if (Entry is null)
         {
             return;
         }
 
-        await DataService.MoveStatusAsync(Entry.Id, status);
-        Entry = DataService.GetById(Entry.Id);
-        StateHasChanged();
+        if (Entry.EpisodesWatched > Entry.TotalEpisodes)
+        {
+            Entry.EpisodesWatched = Entry.TotalEpisodes;
+        }
+
+        await DataService.AddOrUpdateAsync(Entry);
     }
 
-    private async Task ChangeProgress(int delta)
+    private async Task OnRatingChanged(double value)
     {
         if (Entry is null)
         {
             return;
         }
 
-        await DataService.AdjustProgressAsync(Entry.Id, delta);
-        Entry = DataService.GetById(Entry.Id);
-        StateHasChanged();
+        Entry.Rating = value;
+        await SaveEntry();
     }
 
     private async Task DeleteEntry()

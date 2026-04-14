@@ -1,65 +1,67 @@
 @using AnimeTracker.Data
+@using Microsoft.AspNetCore.Components.Web
 @inject NavigationManager Navigation
 @inject AnimeDataService DataService
 
-<div class="anime-card">
-    <div class="anime-card-hero" style="background-image: url('@(string.IsNullOrWhiteSpace(Entry.ImageUrl) ? "https://images.unsplash.com/photo-1529484961088-8ca3cb593af1?auto=format&fit=crop&w=1200&q=80" : Entry.ImageUrl)');">
-        <div class="status-pill @Entry.Status.ToString().ToLower()">@Entry.StatusLabel</div>
-    </div>
-    <div class="anime-card-body">
+<div class="anime-card compact-card clickable-card" role="button" tabindex="0" @onclick="ViewDetails" @onkeydown="HandleKey">
+    <img class="anime-card-thumb" src="@(string.IsNullOrWhiteSpace(Entry.ImageUrl) ? "https://images.unsplash.com/photo-1529484961088-8ca3cb593af1?auto=format&fit=crop&w=1200&q=80" : Entry.ImageUrl)" alt="@Entry.Title" />
+
+    <div class="anime-card-content">
         <div class="anime-card-title-row">
-            <h3>@Entry.Title</h3>
-            <div class="anime-rating">@for (var i = 1; i <= 5; i++)
+            <div>
+                <h3>@Entry.Title</h3>
+                @if (!string.IsNullOrWhiteSpace(Entry.Genre))
                 {
-                    <span class="star">@(i <= Entry.Rating ? "★" : "☆")</span>
+                    <small class="genre-label">@Entry.Genre</small>
                 }
             </div>
+            <span class="status-pill @Entry.Status.ToString().ToLower()">@Entry.StatusLabel</span>
         </div>
 
-        <p>@Entry.Description</p>
-        <div class="anime-metadata">
-            <span><strong>Found:</strong> @(Entry.FoundDate?.ToString("MMM d, yyyy") ?? "—")</span>
-            <span><strong>Watch:</strong> @(Entry.StartDate?.ToString("MMM d") ?? "—") • @(Entry.EndDate?.ToString("MMM d") ?? "—")</span>
-            <span><strong>Language:</strong> @Entry.LanguageLabel</span>
-        </div>
-
-        <div class="anime-progress-row">
-            <div class="progress-line">
-                <span style="width:@Entry.ProgressPercent%"></span>
+        <div class="rating-row">
+            <div class="rating-stars">
+                @for (var i = 1; i <= 5; i++)
+                {
+                    var fill = Math.Clamp((Entry.Rating - (i - 1)) * 100, 0, 100);
+                    <span class="rating-star" style="--fill:@fill%">★</span>
+                }
             </div>
-            <div class="progress-label">
-                <span>@Entry.ProgressLabel</span>
-                <small>@Entry.TotalEpisodes episodes</small>
-            </div>
+            <span class="rating-label">@Entry.RatingLabel</span>
         </div>
 
-        <div class="anime-actions">
-            <button class="btn btn-action" @onclick="ViewDetails">Details</button>
-            <button class="btn btn-action-secondary" @onclick="MoveNext">Move</button>
-        </div>
+        <p class="anime-card-description">@Entry.Description</p>
     </div>
 </div>
 
 @code {
     [Parameter] public AnimeEntry Entry { get; set; } = default!;
-    [Parameter] public EventCallback OnUpdated { get; set; }
+    [Parameter] public string FromTab { get; set; } = string.Empty;
 
-    private async Task MoveNext()
-    {
-        var nextStatus = Entry.Status switch
-        {
-            AnimeStatus.WatchLater => AnimeStatus.Watching,
-            AnimeStatus.Watching => AnimeStatus.Finished,
-            AnimeStatus.Finished => AnimeStatus.WatchLater,
-            _ => AnimeStatus.WatchLater
-        };
-
-        await DataService.MoveStatusAsync(Entry.Id, nextStatus);
-        await OnUpdated.InvokeAsync();
-    }
+    private bool Expanded { get; set; }
 
     private void ViewDetails()
     {
-        Navigation.NavigateTo($"/anime/{Entry.Id}");
+        var target = $"/anime/{Entry.Id}";
+        if (!string.IsNullOrWhiteSpace(FromTab))
+        {
+            target += $"?from={Uri.EscapeDataString(FromTab)}";
+        }
+
+        Navigation.NavigateTo(target);
+    }
+
+    private void ToggleDescription()
+    {
+        Expanded = !Expanded;
+    }
+
+    private async Task HandleKey(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter" || args.Key == " ")
+        {
+            ViewDetails();
+        }
+
+        await Task.CompletedTask;
     }
 }

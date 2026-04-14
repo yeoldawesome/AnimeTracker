@@ -196,6 +196,7 @@ namespace AnimeTracker.Data
                 "EndDate",
                 "Link",
                 "ImageUrl",
+                "Genre",
                 "Status",
                 "Language",
                 "Seasons",
@@ -212,12 +213,13 @@ namespace AnimeTracker.Data
                     Escape(entry.Id),
                     Escape(entry.Title),
                     Escape(entry.Description),
-                    entry.Rating.ToString(),
+                    entry.Rating.ToString(System.Globalization.CultureInfo.InvariantCulture),
                     entry.FoundDate?.ToString("yyyy-MM-dd") ?? string.Empty,
                     entry.StartDate?.ToString("yyyy-MM-dd") ?? string.Empty,
                     entry.EndDate?.ToString("yyyy-MM-dd") ?? string.Empty,
                     Escape(entry.Link),
                     Escape(entry.ImageUrl),
+                    Escape(entry.Genre),
                     entry.Status.ToString(),
                     entry.Language.ToString(),
                     entry.Seasons.ToString(),
@@ -256,12 +258,13 @@ namespace AnimeTracker.Data
                     Id = GetValue(columns, row, "Id") ?? Guid.NewGuid().ToString("N"),
                     Title = GetValue(columns, row, "Title") ?? string.Empty,
                     Description = GetValue(columns, row, "Description") ?? string.Empty,
-                    Rating = ParseInt(GetValue(columns, row, "Rating"), 0),
+                    Rating = ParseDouble(GetValue(columns, row, "Rating"), 0),
                     FoundDate = ParseDate(GetValue(columns, row, "FoundDate")),
                     StartDate = ParseDate(GetValue(columns, row, "StartDate")),
                     EndDate = ParseDate(GetValue(columns, row, "EndDate")),
                     Link = GetValue(columns, row, "Link") ?? string.Empty,
                     ImageUrl = GetValue(columns, row, "ImageUrl") ?? string.Empty,
+                    Genre = GetValue(columns, row, "Genre") ?? string.Empty,
                     Status = ParseEnum(GetValue(columns, row, "Status"), AnimeStatus.WatchLater),
                     Language = ParseEnum(GetValue(columns, row, "Language"), WatchLanguage.SubOnly),
                     Seasons = ParseInt(GetValue(columns, row, "Seasons"), 1),
@@ -367,6 +370,11 @@ namespace AnimeTracker.Data
             return int.TryParse(value, out var result) ? result : defaultValue;
         }
 
+        private static double ParseDouble(string? value, double defaultValue)
+        {
+            return double.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var result) ? result : defaultValue;
+        }
+
         private static DateTime? ParseDate(string? value)
         {
             if (DateTime.TryParse(value, out var date))
@@ -390,6 +398,7 @@ namespace AnimeTracker.Data
                 {
                     Title = "Cyberpunk: Edgerunners",
                     Description = "A daring street kid becomes an outlaw mercenary known as an Edgerunner.",
+                    Genre = "Action",
                     FoundDate = DateTime.Today.AddDays(-14),
                     StartDate = DateTime.Today.AddDays(-10),
                     Rating = 5,
@@ -406,6 +415,7 @@ namespace AnimeTracker.Data
                 {
                     Title = "Made in Abyss",
                     Description = "A young explorer descends into a vast, mysterious chasm known as the Abyss.",
+                    Genre = "Adventure",
                     FoundDate = DateTime.Today.AddDays(-30),
                     Rating = 5,
                     Link = "https://www.crunchyroll.com/made-in-abyss",
@@ -421,6 +431,7 @@ namespace AnimeTracker.Data
                 {
                     Title = "Demon Slayer",
                     Description = "A boy joins the Demon Slayer Corps to save his sister and avenge his family.",
+                    Genre = "Action",
                     FoundDate = DateTime.Today.AddDays(-70),
                     StartDate = DateTime.Today.AddDays(-55),
                     EndDate = DateTime.Today.AddDays(-20),

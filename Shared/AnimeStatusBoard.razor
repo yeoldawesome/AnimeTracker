@@ -1,16 +1,19 @@
 @using AnimeTracker.Data
 @inject AnimeDataService DataService
 
-<div class="status-board">
-    <div class="status-board-header">
-        <div>
-            <h2>@Title</h2>
-            <p>@Description</p>
+<div class="status-board @(ShowHeader ? string.Empty : "no-header")">
+    @if (ShowHeader)
+    {
+        <div class="status-board-header">
+            <div>
+                <h2>@Title</h2>
+                <p>@Description</p>
+            </div>
+            <div class="status-board-meta">
+                <span>@Entries.Count entries</span>
+            </div>
         </div>
-        <div class="status-board-meta">
-            <span>@Entries.Count entries</span>
-        </div>
-    </div>
+    }
 
     @if (Entries.Count == 0)
     {
@@ -24,7 +27,7 @@
         <div class="status-grid">
             @foreach (var entry in Entries)
             {
-                <AnimeCard Entry="entry" OnUpdated="Refresh" />
+                <AnimeCard Entry="entry" FromTab="FromTab" />
             }
         </div>
     }
@@ -34,6 +37,8 @@
     [Parameter] public AnimeStatus Status { get; set; }
     [Parameter] public string Title { get; set; } = string.Empty;
     [Parameter] public string Description { get; set; } = string.Empty;
+    [Parameter] public bool ShowHeader { get; set; } = true;
+    [Parameter] public string FromTab { get; set; } = string.Empty;
 
     private List<AnimeEntry> Entries { get; set; } = new();
 
@@ -46,12 +51,5 @@
     private void RefreshEntries()
     {
         Entries = DataService.GetByStatus(Status);
-    }
-
-    private Task Refresh()
-    {
-        RefreshEntries();
-        StateHasChanged();
-        return Task.CompletedTask;
     }
 }

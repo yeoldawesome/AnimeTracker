@@ -1,0 +1,30 @@
+@using Microsoft.AspNetCore.Components
+<div class="star-rating" aria-label="@Label">
+    @for (var i = 1; i <= 5; i++)
+    {
+        var fill = GetStarFill(i);
+        <div class="star-cell">
+            <button type="button" class="star-half left" @onclick="() => SetRating((i * 2) - 1)" aria-label="Half star"></button>
+            <button type="button" class="star-half right" @onclick="() => SetRating(i * 2)" aria-label="Full star"></button>
+            <span class="star-shape" style="--fill:@fill%">★</span>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public double Value { get; set; }
+    [Parameter] public EventCallback<double> ValueChanged { get; set; }
+    [Parameter] public string Label { get; set; } = "Rating";
+
+    private double GetStarFill(int star)
+    {
+        var value = Value - (star - 1) * 2;
+        return Math.Clamp(value * 50, 0, 100);
+    }
+
+    private Task SetRating(int halfStars)
+    {
+        var newValue = halfStars / 2.0;
+        return ValueChanged.InvokeAsync(newValue);
+    }
+}

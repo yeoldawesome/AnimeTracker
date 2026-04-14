@@ -3,66 +3,142 @@
 
 <PageTitle>AnimeTracker</PageTitle>
 
+<div id="browser-tabs" class="browser-tabs">
+    @foreach (var tab in new[] { "Overview", "Quick Add", "Watching", "Finished", "Watch Later" })
+    {
+        <button class="browser-tab @(SelectedTab == tab ? "active" : string.Empty)" @onclick="() => SelectTab(tab)">@tab</button>
+    }
+</div>
+
+<div class="tab-panel">
+    @if (SelectedTab == "Quick Add")
+    {
+        <div class="quick-add-panel">
+            <h2>Quick Add</h2>
+            <p>Enter only a title, description, and genre. The date will be set automatically.</p>
+            <div class="quick-add-form">
+                <label>Title</label>
+                <InputText class="form-control" @bind-Value="QuickTitle" />
+
+                <label>Description</label>
+                <InputTextArea class="form-control" @bind-Value="QuickDescription" Rows="4" />
+
+                <label>Genre</label>
+                <InputText class="form-control" @bind-Value="QuickGenre" />
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-primary" @onclick="AddQuickAnime">Add anime</button>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(QuickMessage))
+                {
+                    <div class="quick-add-message">@QuickMessage</div>
+                }
+            </div>
+        </div>
+    }
+    else if (SelectedTab == "Overview")
+    {
+        <div class="overview-grid">
+            <div class="overview-card">
+                <h2>My anime tracker</h2>
+                <p>One place to mark your watch progress, keep notes, and save everything locally.</p>
+                <div class="overview-stats">
+                    <div>
+                        <span>@DataService.GetByStatus(AnimeStatus.Watching).Count</span>
+                        <small>Watching</small>
+                    </div>
+                    <div>
+                        <span>@DataService.GetByStatus(AnimeStatus.WatchLater).Count</span>
+                        <small>Watch Later</small>
+                    </div>
+                    <div>
+                        <span>@DataService.GetByStatus(AnimeStatus.Finished).Count</span>
+                        <small>Finished</small>
+                    </div>
+                </div>
+                <div class="overview-actions">
+                    <NavLink class="btn btn-primary" href="add">Add anime</NavLink>
+                    <NavLink class="btn btn-secondary" href="storage">CSV storage</NavLink>
+                </div>
+            </div>
+
+            <div class="overview-card">
+                <h3>Quick view</h3>
+                <p>Tap any list tab to see the compact review cards and move titles with ease.</p>
+                <div class="overview-list">
+                    @foreach (var entry in DataService.Entries.OrderByDescending(x => x.FoundDate ?? DateTime.MinValue).Take(4))
+                    {
+                        <div class="overview-item">
+                            <div>
+                                <strong>@entry.Title</strong>
+                                <p>@entry.StatusLabel • @entry.RatingLabel</p>
+                            </div>
+                            <span>@entry.ProgressLabel</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+    else if (SelectedTab == "Watching")
+    {
+        <AnimeStatusBoard Status="AnimeStatus.Watching" Title="Watching now" Description="Track your active anime and mark progress instantly." />
+    }
+    else if (SelectedTab == "Finished")
+    {
+        <AnimeStatusBoard Status="AnimeStatus.Finished" Title="Finished list" Description="Titles you have completed and want to preserve." />
+    }
+    else
+    {
+        <AnimeStatusBoard Status="AnimeStatus.WatchLater" Title="Watch Later" Description="Titles you want to come back to soon." />
+    }
+</div>
+
 @code {
+    private string SelectedTab { get; set; } = "Overview";
+
     protected override async Task OnInitializedAsync()
     {
         await DataService.InitializeAsync();
     }
+
+    private string QuickTitle { get; set; } = string.Empty;
+    private string QuickDescription { get; set; } = string.Empty;
+    private string QuickGenre { get; set; } = string.Empty;
+    private string QuickMessage { get; set; } = string.Empty;
+
+    private void SelectTab(string tab)
+    {
+        SelectedTab = tab;
+        QuickMessage = string.Empty;
+    }
+
+    private async Task AddQuickAnime()
+    {
+        if (string.IsNullOrWhiteSpace(QuickTitle))
+        {
+            QuickMessage = "Please enter a title.";
+            return;
+        }
+
+        var entry = new AnimeEntry
+        {
+            Title = QuickTitle,
+            Description = QuickDescription,
+            Genre = QuickGenre,
+            FoundDate = DateTime.Today,
+            Status = AnimeStatus.WatchLater,
+            Rating = 0,
+            Language = WatchLanguage.SubOnly,
+            Seasons = 1,
+            EpisodesPerSeason = 1,
+            EpisodesWatched = 0
+        };
+
+        await DataService.AddOrUpdateAsync(entry);
+        QuickTitle = string.Empty;
+        QuickDescription = string.Empty;
+        QuickGenre = string.Empty;
+        QuickMessage = "Anime added to your list.";
+    }
 }
-
-<div class="hero-panel">
-    <div>
-        <p class="eyebrow">Personal anime tracker</p>
-        <h1>Keep your anime library ready for phone or desktop.</h1>
-        <p class="hero-copy">Track titles in Watch Later, Watching, or Finished. Save progress, export to CSV, and manage your collection locally with a polished mobile-first interface.</p>
-        <div class="hero-actions">
-            <NavLink class="btn btn-primary" href="add">Add new anime</NavLink>
-            <NavLink class="btn btn-outline-light" href="watching">Open Watching</NavLink>
-            <NavLink class="btn btn-outline-light" href="watch-later">Watch Later</NavLink>
-        </div>
-    </div>
-    <div class="hero-visual">
-        <div class="hero-card">
-            <div class="hero-card-title">Your anime snapshot</div>
-            <div class="stat-grid">
-                <div>
-                    <span>@DataService.GetByStatus(AnimeStatus.Watching).Count</span>
-                    <small>Watching</small>
-                </div>
-                <div>
-                    <span>@DataService.GetByStatus(AnimeStatus.WatchLater).Count</span>
-                    <small>Watch Later</small>
-                </div>
-                <div>
-                    <span>@DataService.GetByStatus(AnimeStatus.Finished).Count</span>
-                    <small>Finished</small>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="section-grid">
-    <div class="feature-card">
-        <h2>Organized screens</h2>
-        <p>Move titles across Watch Later, Watching, and Finished screens with just one tap.</p>
-    </div>
-    <div class="feature-card">
-        <h2>Episode tracking</h2>
-        <p>Store seasons, episodes per season, watched count, and progress percentage for each title.</p>
-    </div>
-    <div class="feature-card">
-        <h2>CSV backup</h2>
-        <p>Export your anime list to a file and import it again if you switch phones or want a local backup.</p>
-    </div>
-</div>
-
-<div class="home-quick-board">
-    <h2>Quick links</h2>
-    <div class="home-quick-buttons">
-        <NavLink class="btn btn-primary" href="watching">Watching</NavLink>
-        <NavLink class="btn btn-secondary" href="finished">Finished</NavLink>
-        <NavLink class="btn btn-secondary" href="watch-later">Watch Later</NavLink>
-        <NavLink class="btn btn-secondary" href="storage">CSV Storage</NavLink>
-    </div>
-</div>
