@@ -2,6 +2,7 @@
 @using AnimeTracker.Data
 @inject AnimeDataService DataService
 @inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
 
 <PageTitle>CSV Storage</PageTitle>
 
@@ -24,6 +25,7 @@
         <h2>Import CSV</h2>
         <p>Choose a CSV file exported from AnimeTracker to restore your library.</p>
         <InputFile OnChange="ImportCsv" accept=".csv" />
+        <button class="btn btn-secondary" @onclick="ClearData">Clear all current data</button>
         @if (!string.IsNullOrEmpty(ImportStatus))
         {
             <div class="import-status">@ImportStatus</div>
@@ -42,6 +44,18 @@
     private async Task ExportCsv()
     {
         await DataService.ExportCsvAsync();
+    }
+
+    private async Task ClearData()
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Clear all current anime data? This will reset the list and allow a fresh CSV import.");
+        if (!confirmed)
+        {
+            return;
+        }
+
+        await DataService.ClearAllAsync();
+        ImportStatus = "Current data cleared. You can now upload a new CSV file.";
     }
 
     private async Task ImportCsv(InputFileChangeEventArgs args)

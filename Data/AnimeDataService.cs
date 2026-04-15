@@ -168,6 +168,12 @@ namespace AnimeTracker.Data
             }
         }
 
+        public async Task ClearAllAsync()
+        {
+            Entries.Clear();
+            await SaveEntriesAsync();
+        }
+
         private string BuildCsv()
         {
             static string Escape(string? input)
