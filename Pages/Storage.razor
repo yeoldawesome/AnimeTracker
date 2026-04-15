@@ -18,13 +18,15 @@
 <div class="storage-panel">
     <div class="storage-card">
         <h2>Export CSV</h2>
-        <p>Download a CSV backup of your current anime data.</p>
+        <p>Download or copy a CSV backup of your current anime data.</p>
         <button class="btn btn-primary" @onclick="ExportCsv">Download backup</button>
+        <button class="btn btn-secondary" @onclick="CopyCsv">Copy backup</button>
     </div>
     <div class="storage-card">
         <h2>Import CSV</h2>
-        <p>Choose a CSV file exported from AnimeTracker to restore your library.</p>
+        <p>Choose a CSV file exported from AnimeTracker, or paste CSV text from your clipboard.</p>
         <InputFile OnChange="ImportCsv" accept=".csv" />
+        <button class="btn btn-secondary" @onclick="PasteCsv">Paste CSV</button>
         <button class="btn btn-secondary" @onclick="ClearData">Clear all current data</button>
         @if (!string.IsNullOrEmpty(ImportStatus))
         {
@@ -56,6 +58,26 @@
 
         await DataService.ClearAllAsync();
         ImportStatus = "Current data cleared. You can now upload a new CSV file.";
+    }
+
+    private async Task CopyCsv()
+    {
+        var csv = await DataService.GetExportCsvTextAsync();
+        var copied = await JSRuntime.InvokeAsync<bool>("animeTracker.copyTextToClipboard", csv);
+        ImportStatus = copied ? "Current CSV copied to clipboard." : "Unable to copy CSV. Please allow clipboard access or use a compatible browser.";
+    }
+
+    private async Task PasteCsv()
+    {
+        var clipboardText = await JSRuntime.InvokeAsync<string?>("animeTracker.readTextFromClipboard");
+        if (string.IsNullOrWhiteSpace(clipboardText))
+        {
+            ImportStatus = "No CSV text found in clipboard.";
+            return;
+        }
+
+        await DataService.ImportCsvTextAsync(clipboardText);
+        ImportStatus = "CSV pasted from clipboard and imported successfully.";
     }
 
     private async Task ImportCsv(InputFileChangeEventArgs args)

@@ -48,11 +48,6 @@ namespace AnimeTracker.Data
                 }
             }
 
-            if (Entries.Count == 0)
-            {
-                Entries = GetSampleEntries();
-                await SaveEntriesAsync();
-            }
         }
 
         public Task SaveEntriesAsync()
@@ -153,19 +148,30 @@ namespace AnimeTracker.Data
             await _jsRuntime.InvokeVoidAsync("animeTracker.saveTextFile", fileName, csv);
         }
 
+        public Task<string> GetExportCsvTextAsync()
+        {
+            return Task.FromResult(BuildCsv());
+        }
+
+        public async Task ImportCsvTextAsync(string csvText)
+        {
+            var imported = ParseCsv(csvText).ToList();
+            if (imported.Count == 0)
+            {
+                return;
+            }
+
+            Entries.RemoveAll(entry => imported.Any(import => !string.IsNullOrWhiteSpace(import.Title) && entry.Title.Equals(import.Title, StringComparison.OrdinalIgnoreCase) && entry.Link == import.Link));
+            Entries.AddRange(imported);
+            await SaveEntriesAsync();
+        }
+
         public async Task ImportCsvAsync(IBrowserFile file)
         {
             using var stream = file.OpenReadStream(maxAllowedSize: 5_000_000);
             using var reader = new StreamReader(stream, Encoding.UTF8);
             var text = await reader.ReadToEndAsync();
-            var imported = ParseCsv(text).ToList();
-
-            if (imported.Count > 0)
-            {
-                Entries.RemoveAll(entry => imported.Any(import => !string.IsNullOrWhiteSpace(import.Title) && entry.Title.Equals(import.Title, StringComparison.OrdinalIgnoreCase) && entry.Link == import.Link));
-                Entries.AddRange(imported);
-                await SaveEntriesAsync();
-            }
+            await ImportCsvTextAsync(text);
         }
 
         public async Task ClearAllAsync()
@@ -396,62 +402,5 @@ namespace AnimeTracker.Data
             return Enum.TryParse(value, ignoreCase: true, out T parsed) ? parsed : defaultValue;
         }
 
-        private static List<AnimeEntry> GetSampleEntries()
-        {
-            return new List<AnimeEntry>
-            {
-                new AnimeEntry
-                {
-                    Title = "Cyberpunk: Edgerunners",
-                    Description = "A daring street kid becomes an outlaw mercenary known as an Edgerunner.",
-                    Genre = "Action",
-                    FoundDate = DateTime.Today.AddDays(-14),
-                    StartDate = DateTime.Today.AddDays(-10),
-                    Rating = 5,
-                    Link = "https://www.netflix.com/title/81011273",
-                    ImageUrl = "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/8uO0gUM8aNqYLs1OsTBQiXu0fEv.jpg",
-                    Status = AnimeStatus.Watching,
-                    Language = WatchLanguage.DubAvailable,
-                    Seasons = 1,
-                    EpisodesPerSeason = 10,
-                    EpisodesWatched = 4,
-                    Notes = "Great energy and animation style."
-                },
-                new AnimeEntry
-                {
-                    Title = "Made in Abyss",
-                    Description = "A young explorer descends into a vast, mysterious chasm known as the Abyss.",
-                    Genre = "Adventure",
-                    FoundDate = DateTime.Today.AddDays(-30),
-                    Rating = 5,
-                    Link = "https://www.crunchyroll.com/made-in-abyss",
-                    ImageUrl = "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/jdbjlwUJD6Ar3u2dNbp74BjJqVB.jpg",
-                    Status = AnimeStatus.WatchLater,
-                    Language = WatchLanguage.SubOnly,
-                    Seasons = 2,
-                    EpisodesPerSeason = 13,
-                    EpisodesWatched = 0,
-                    Notes = "Want to start this after finishing current series."
-                },
-                new AnimeEntry
-                {
-                    Title = "Demon Slayer",
-                    Description = "A boy joins the Demon Slayer Corps to save his sister and avenge his family.",
-                    Genre = "Action",
-                    FoundDate = DateTime.Today.AddDays(-70),
-                    StartDate = DateTime.Today.AddDays(-55),
-                    EndDate = DateTime.Today.AddDays(-20),
-                    Rating = 4,
-                    Link = "https://www.crunchyroll.com/demon-slayer",
-                    ImageUrl = "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/xFeldHvmSx0F3bJcU1dKfyBVYFT.jpg",
-                    Status = AnimeStatus.Finished,
-                    Language = WatchLanguage.DubAvailable,
-                    Seasons = 1,
-                    EpisodesPerSeason = 26,
-                    EpisodesWatched = 26,
-                    Notes = "Loved the soundtrack and fights."
-                }
-            };
-        }
     }
 }

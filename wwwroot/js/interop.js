@@ -49,5 +49,32 @@ window.animeTracker = {
         } catch (error) {
             console.warn('Pointer release unavailable.', error);
         }
+    },
+
+    copyTextToClipboard: async function (text) {
+        if (!navigator.clipboard || !navigator.clipboard.writeText) {
+            return false;
+        }
+
+        try {
+            await navigator.clipboard.writeText(text);
+            return true;
+        } catch (error) {
+            console.warn('Clipboard write failed.', error);
+            return false;
+        }
+    },
+
+    readTextFromClipboard: async function () {
+        if (!navigator.clipboard || !navigator.clipboard.readText) {
+            return null;
+        }
+
+        try {
+            return await navigator.clipboard.readText();
+        } catch (error) {
+            console.warn('Clipboard read failed.', error);
+            return null;
+        }
     }
 };
