@@ -45,7 +45,7 @@
             <InputText class="form-control" @bind-Value="NewAnime.ImageUrl" />
 
             <label class="btn btn-secondary" for="add-image-file">Upload from camera roll</label>
-            <InputFile id="add-image-file" style="display:none;" OnChange="UploadImage" accept="image/*" capture="environment" />
+            <InputFile id="add-image-file" style="display:none;" OnChange="UploadImage" accept="image/*" />
 
             @if (!string.IsNullOrWhiteSpace(NewAnime.ImageUrl))
             {
@@ -58,7 +58,8 @@
         <div class="form-card">
             <label>Rating</label>
             <StarRating Value="NewAnime.Rating" ValueChanged="OnRatingChanged" />
-            <div class="rating-note">Tap stars to set your rating, and tap a lower star to reduce it.</div>
+            <InputNumber class="form-control" @bind-Value="NewAnime.Rating" Min="0" Max="5" />
+            <div class="rating-note">Tap stars or enter a number 0–5.</div>
 
             <label>Status</label>
             <InputSelect class="form-control" @bind-Value="NewAnime.Status">

@@ -51,6 +51,7 @@ else
                 <div>
                     <label>Rating</label>
                     <StarRating Value="Entry.Rating" ValueChanged="OnRatingChanged" />
+                    <InputNumber class="form-control" @bind-Value="Entry.Rating" Min="0" Max="5" @onchange="SaveEntry" />
                 </div>
                 <div>
                     <label>Found date</label>
