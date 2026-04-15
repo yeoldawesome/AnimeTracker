@@ -72,6 +72,9 @@ else
             <label>Link</label>
             <InputText class="form-control" @bind-Value="Entry.Link" @onblur="SaveEntry" />
 
+            <label>Image URL</label>
+            <InputText class="form-control" @bind-Value="Entry.ImageUrl" @onblur="SaveEntry" />
+
             <label class="btn btn-secondary" for="edit-image-file">Upload from camera roll</label>
             <InputFile id="edit-image-file" style="display:none;" OnChange="UploadImage" accept="image/*" capture="environment" />
 
