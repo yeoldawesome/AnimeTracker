@@ -29,18 +29,34 @@ jobs:
           dotnet-version: '7.0.x'
 
       - name: Publish
-        run: dotnet publish -c Release -o publish
-
+        run: dotnet publish -c Release -o publish -p:BlazorWebAssemblyEnableSubresourceIntegrity=false
 
       - name: Fix base href for GitHub Pages
         run: |
           REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
-          sed -i "s|<base href=\"/\" />|<base href=\"/$REPO_NAME/\" />|g" publish/wwwroot/index.html
+          sed -i "s|<base href=\"[^"]*\" />|<base href=\"/$REPO_NAME/\" />|g" publish/wwwroot/index.html
 
       - name: Remove all integrity attributes (disable SRI)
         run: |
           find publish/wwwroot -type f -name '*.html' -exec sed -i 's/ integrity="[^"]*"//g' {} +
           find publish/wwwroot -type f -name '*.js' -exec sed -i 's/ integrity:"[^"]*",//g' {} +
+
+      - name: Disable Blazor boot manifest SRI
+        run: |
+          python3 <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path('publish/wwwroot/_framework/blazor.boot.json')
+          data = json.loads(path.read_text(encoding='utf-8'))
+          data['cacheBootResources'] = False
+          runtime_assets = data.get('runtimeAssets', {})
+          if isinstance(runtime_assets, dict):
+              for item in runtime_assets.values():
+                  if isinstance(item, dict) and 'hash' in item:
+                      item.pop('hash', None)
+          path.write_text(json.dumps(data, indent=2), encoding='utf-8')
+          PY
 
       - name: Add .nojekyll
         run: touch publish/wwwroot/.nojekyll
