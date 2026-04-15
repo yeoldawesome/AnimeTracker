@@ -142,9 +142,9 @@ else
 
         var target = Entry?.Status switch
         {
-            AnimeStatus.WatchLater => "/watch-later",
-            AnimeStatus.Watching => "/watching",
-            AnimeStatus.Finished => "/finished",
+            AnimeStatus.WatchLater => $"{Navigation.BaseUri}watch-later",
+            AnimeStatus.Watching => $"{Navigation.BaseUri}watching",
+            AnimeStatus.Finished => $"{Navigation.BaseUri}finished",
             _ => Navigation.BaseUri
         };
 

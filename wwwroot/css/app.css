@@ -155,27 +155,28 @@ nav {
     background: rgba(255, 159, 64, 0.08);
     border-radius: 20px;
     border: 1px solid rgba(255, 159, 64, 0.18);
-    overflow-x: hidden;
+    overflow-x: auto;
     position: sticky;
     top: 0;
     z-index: 50;
 }
 
 .browser-tab {
-    flex: 1 0 0;
-    min-width: 0;
+    flex: 1 1 auto;
+    min-width: 90px;
     border: none;
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.06);
     color: #f7dcba;
     font-weight: 700;
     font-size: 0.9rem;
-    padding: 0.6rem 0.45rem;
+    padding: 0.6rem 0.75rem;
     cursor: pointer;
     transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
     text-align: center;
-    white-space: normal;
-    word-break: break-word;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .browser-tab:hover {
