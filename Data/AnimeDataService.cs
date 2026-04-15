@@ -149,7 +149,7 @@ namespace AnimeTracker.Data
         public async Task ExportCsvAsync()
         {
             var csv = BuildCsv();
-            var fileName = $"AnimeTracker-{DateTime.UtcNow:yyyyMMdd}.csv";
+            var fileName = "AnimeTrackerList.csv";
             await _jsRuntime.InvokeVoidAsync("animeTracker.saveTextFile", fileName, csv);
         }
 

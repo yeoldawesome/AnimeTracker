@@ -162,7 +162,7 @@ nav {
 }
 
 .browser-tab {
-    flex: 1 1 auto;
+    flex: 0 0 auto;
     min-width: 90px;
     border: none;
     border-radius: 16px;

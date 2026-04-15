@@ -2,6 +2,7 @@
 @using AnimeTracker.Data
 @inject AnimeDataService DataService
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 <PageTitle>Anime details</PageTitle>
 
@@ -71,6 +72,9 @@ else
 
             <label>Link</label>
             <InputText class="form-control" @bind-Value="Entry.Link" @onblur="SaveEntry" />
+
+            <label class="btn btn-secondary" for="edit-image-file">Upload from camera roll</label>
+            <InputFile id="edit-image-file" style="display:none;" OnChange="UploadImage" accept="image/*" capture="environment" />
 
             <div class="detail-row">
                 <div>
@@ -213,7 +217,29 @@ else
             return;
         }
 
+        var confirmed = await JS.InvokeAsync<bool>("confirm", $"Delete '{Entry.Title}'? This cannot be undone.");
+        if (!confirmed)
+        {
+            return;
+        }
+
         await DataService.RemoveAsync(Entry.Id);
         Navigation.NavigateTo(Navigation.BaseUri);
+    }
+
+    private async Task UploadImage(InputFileChangeEventArgs e)
+    {
+        if (Entry is null)
+        {
+            return;
+        }
+
+        var file = e.File;
+        using var stream = file.OpenReadStream(maxAllowedSize: 5_000_000);
+        using var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream);
+        var imageBytes = memoryStream.ToArray();
+        Entry.ImageUrl = $"data:{file.ContentType};base64,{Convert.ToBase64String(imageBytes)}";
+        await SaveEntry();
     }
 }

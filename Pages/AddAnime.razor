@@ -43,6 +43,16 @@
 
             <label>Image URL</label>
             <InputText class="form-control" @bind-Value="NewAnime.ImageUrl" />
+
+            <label class="btn btn-secondary" for="add-image-file">Upload from camera roll</label>
+            <InputFile id="add-image-file" style="display:none;" OnChange="UploadImage" accept="image/*" capture="environment" />
+
+            @if (!string.IsNullOrWhiteSpace(NewAnime.ImageUrl))
+            {
+                <div class="image-preview">
+                    <img src="@NewAnime.ImageUrl" alt="Selected anime image preview" />
+                </div>
+            }
         </div>
 
         <div class="form-card">
@@ -95,6 +105,16 @@
     {
         NewAnime.Rating = value;
         return Task.CompletedTask;
+    }
+
+    private async Task UploadImage(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        using var stream = file.OpenReadStream(maxAllowedSize: 5_000_000);
+        using var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream);
+        var imageBytes = memoryStream.ToArray();
+        NewAnime.ImageUrl = $"data:{file.ContentType};base64,{Convert.ToBase64String(imageBytes)}";
     }
 
     private async Task SaveAnime()
