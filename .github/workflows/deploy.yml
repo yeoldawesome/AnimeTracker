@@ -3,39 +3,50 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main  # Change this if your default branch is not 'main'
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '7.0.x'
 
-      - name: Restore dependencies
-        run: dotnet restore
-
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
-
       - name: Publish
-        run: dotnet publish -c Release -o release --nologo
+        run: dotnet publish -c Release -o publish
 
-      - name: Copy output to docs/
+      - name: Fix base href for GitHub Pages
         run: |
-          rm -rf docs
-          mkdir docs
-          cp -r release/wwwroot/* docs/
+          REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+          sed -i "s|<base href=\"/\" />|<base href=\"/$REPO_NAME/\" />|g" publish/wwwroot/index.html
 
-      - name: Commit and push docs folder
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add docs
-          git commit -m 'Update deployed docs [skip ci]' || echo "No changes to commit"
-          git push
+      - name: Add .nojekyll
+        run: touch publish/wwwroot/.nojekyll
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: publish/wwwroot
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
