@@ -31,10 +31,16 @@ jobs:
       - name: Publish
         run: dotnet publish -c Release -o publish
 
+
       - name: Fix base href for GitHub Pages
         run: |
           REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
           sed -i "s|<base href=\"/\" />|<base href=\"/$REPO_NAME/\" />|g" publish/wwwroot/index.html
+
+      - name: Remove all integrity attributes (disable SRI)
+        run: |
+          find publish/wwwroot -type f -name '*.html' -exec sed -i 's/ integrity="[^"]*"//g' {} +
+          find publish/wwwroot -type f -name '*.js' -exec sed -i 's/ integrity:"[^"]*",//g' {} +
 
       - name: Add .nojekyll
         run: touch publish/wwwroot/.nojekyll
