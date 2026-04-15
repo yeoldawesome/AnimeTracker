@@ -34,7 +34,7 @@ jobs:
       - name: Fix base href for GitHub Pages
         run: |
           REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
-          sed -i "s|<base href=\"[^"]*\" />|<base href=\"/$REPO_NAME/\" />|g" publish/wwwroot/index.html
+          sed -i "s|<base href=\\"[^\\"]*\\" />|<base href=\\"/$REPO_NAME/\\" />|g" publish/wwwroot/index.html
 
       - name: Remove all integrity attributes (disable SRI)
         run: |
