@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <title>AnimeTracker</title>
+  <script>
+    (function () {
+      var path = location.pathname + location.search + location.hash;
+      var repoRoot = path.substring(0, path.indexOf('/', 1) + 1);
+      var indexUrl = repoRoot + 'index.html';
+
+      function renderHtml(html) {
+        document.open();
+        document.write(html);
+        document.close();
+      }
+
+      function tryFetch(url, fallback) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.onload = function () {
+          if (xhr.status >= 200 && xhr.status < 400) {
+            renderHtml(xhr.responseText);
+          } else if (fallback) {
+            tryFetch(fallback, null);
+          } else {
+            document.body.textContent = 'Unable to load AnimeTracker.';
+          }
+        };
+        xhr.onerror = function () {
+          if (fallback) {
+            tryFetch(fallback, null);
+          } else {
+            document.body.textContent = 'Unable to load AnimeTracker.';
+          }
+        };
+        xhr.send();
+      }
+
+      tryFetch(indexUrl, '/index.html');
+    })();
+  </script>
+</head>
+<body>
+  <p>Loading AnimeTracker…</p>
+</body>
+</html>

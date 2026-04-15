@@ -2,9 +2,9 @@
 @inject NavigationManager Navigation
 
 <div class="browser-tabs">
-    <NavLink class="browser-tab" href="/" Match="NavLinkMatch.All">Overview</NavLink>
-    <NavLink class="browser-tab" href="/add" Match="NavLinkMatch.All">Quick Add</NavLink>
-    <NavLink class="browser-tab" href="/watching">Watching</NavLink>
-    <NavLink class="browser-tab" href="/finished">Finished</NavLink>
-    <NavLink class="browser-tab" href="/watch-later">Watch Later</NavLink>
+    <NavLink class="browser-tab" href="@Navigation.BaseUri" Match="NavLinkMatch.All">Overview</NavLink>
+    <NavLink class="browser-tab" href="@($"{Navigation.BaseUri}add")" Match="NavLinkMatch.All">Quick Add</NavLink>
+    <NavLink class="browser-tab" href="@($"{Navigation.BaseUri}watching")">Watching</NavLink>
+    <NavLink class="browser-tab" href="@($"{Navigation.BaseUri}finished")">Finished</NavLink>
+    <NavLink class="browser-tab" href="@($"{Navigation.BaseUri}watch-later")">Watch Later</NavLink>
 </div>

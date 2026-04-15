@@ -10,7 +10,7 @@
     <div class="empty-state">
         <h2>Anime not found</h2>
         <p>This title may have been removed or the link is invalid.</p>
-        <NavLink class="btn btn-primary" href="/">Back to home</NavLink>
+        <NavLink class="btn btn-primary" href="@Navigation.BaseUri">Back to home</NavLink>
     </div>
 }
 else
@@ -145,7 +145,7 @@ else
             AnimeStatus.WatchLater => "/watch-later",
             AnimeStatus.Watching => "/watching",
             AnimeStatus.Finished => "/finished",
-            _ => "/"
+            _ => Navigation.BaseUri
         };
 
         Navigation.NavigateTo(target);
@@ -214,6 +214,6 @@ else
         }
 
         await DataService.RemoveAsync(Entry.Id);
-        Navigation.NavigateTo("/");
+        Navigation.NavigateTo(Navigation.BaseUri);
     }
 }

@@ -11,7 +11,7 @@
         <h1>Add a new title</h1>
         <p>Fill in the details and save your anime to the tracker.</p>
     </div>
-    <NavLink class="btn btn-secondary" href="/">Back</NavLink>
+    <NavLink class="btn btn-secondary" href="@Navigation.BaseUri">Back</NavLink>
 </div>
 
 <EditForm Model="NewAnime" OnValidSubmit="SaveAnime">
@@ -126,7 +126,7 @@
 
         await DataService.AddOrUpdateAsync(NewAnime);
         NewAnime = new AnimeEntry();
-        Navigation.NavigateTo("/");
+        Navigation.NavigateTo(Navigation.BaseUri);
     }
 
     private void ResetForm()

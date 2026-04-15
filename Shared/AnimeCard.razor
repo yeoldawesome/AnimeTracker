@@ -250,7 +250,7 @@
             return;
         }
 
-        var target = $"/anime/{Entry.Id}";
+        var target = $"{Navigation.BaseUri}anime/{Entry.Id}";
         if (!string.IsNullOrWhiteSpace(FromTab))
         {
             target += $"?from={Uri.EscapeDataString(FromTab)}";
